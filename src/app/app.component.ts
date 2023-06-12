@@ -22,11 +22,9 @@ export class AppComponent implements OnInit {
     console.log('APP COMPONENT');
     /* ======================== THEME COLORS ================================== */
     this.aiserviceService.backgroundColorChanged1.subscribe((color: string) => {
-      console.log('got back ground color --background-color1 : ' + color);
       document.documentElement.style.setProperty('--background-color1', color);
     });
     this.aiserviceService.backgroundColorChanged2.subscribe((color: string) => {
-      console.log('got back ground color --background-color2 : ' + color);
       document.documentElement.style.setProperty('--background-color2', color);
     });
     /* ======================== THEME COLORS ================================== */

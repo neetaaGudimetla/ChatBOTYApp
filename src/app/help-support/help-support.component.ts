@@ -31,6 +31,19 @@ export class HelpSupportComponent {
   openSupportPopup() {
     this.isOpen = !this.isOpen;
   }
+  typeText(element: any, text: any) {
+    let index = 0;
+
+    let interval = setInterval(() => {
+      if (index < text.length) {
+        element.innerHTML += text.charAt(index);
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 20);
+  }
+
 
   sendMessage() {
     const sentMessage = this.chatForm.value.message!;
@@ -42,11 +55,17 @@ export class HelpSupportComponent {
     this.chatForm.reset();
     this.scrollToBottom();
     this.messageService.sendMessage(sentMessage).subscribe((response: any) => {
+      console.log('response.message :: ' + response.message);
       this.loading = false;
       this.messages.push({
         type: 'client',
         message: response.message,
       });
+      //--------------------------------------------------------------
+      /*   const collection = document.getElementsByClassName("client");
+        collection[0].innerHTML = "";
+        this.typeText(collection[0], response.message); */
+      //--------------------------------------------------------------
       this.scrollToBottom();
     });
   }
@@ -56,7 +75,7 @@ export class HelpSupportComponent {
       try {
         this.myScrollContainer.nativeElement.scrollTop =
           this.myScrollContainer.nativeElement.scrollHeight + 500;
-      } catch (err) {}
+      } catch (err) { }
     }, 150);
   }
 }

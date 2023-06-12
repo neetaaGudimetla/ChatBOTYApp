@@ -1,5 +1,9 @@
 <div id="helpdesk">
-  <button class="buttonx" id="helpdesk-popup-button" (click)="openSupportPopup()">
+  <button
+    class="buttonx"
+    id="helpdesk-popup-button"
+    (click)="openSupportPopup()"
+  >
     Need Help?
   </button>
   <div id="helpdesk-popup" [style.display]="isOpen ? 'block' : 'none'">
@@ -34,7 +38,7 @@
         style="color: navy"
       />
       <button
-      class="buttonx"
+        class="buttonx"
         id="helpdesk-popup-submit-button"
         [disabled]="!chatForm.valid"
         (click)="sendMessage()"

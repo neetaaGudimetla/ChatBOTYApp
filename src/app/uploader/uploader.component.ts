@@ -17,10 +17,10 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 })
 export class UploaderComponent implements OnInit, OnDestroy {
 
-  //####################################################
+  //--------------------------------------------------
   //liveOrLocalUrl = 'http://localhost:3000';
   liveOrLocalUrl = 'https://chatbotaiapi.onrender.com';
-  //####################################################
+  //--------------------------------------------------
 
   docxContent!: string;  // Assuming you have the DOCX content in this variable
   docxUrl!: any;
@@ -42,10 +42,6 @@ export class UploaderComponent implements OnInit, OnDestroy {
   }
   pdfSrc: any;
   onFileSelected(val: any, option: any) {
-    for (let i = 0; i < this.fileAndFilenames.length; i++) {//arun
-      console.log(this.fileAndFilenames[i].filename);
-      console.log(this.fileAndFilenames[i].file);
-    }
 
     console.log('OPTION: ' + JSON.stringify(option));
     console.log(option.name);
@@ -102,6 +98,8 @@ export class UploaderComponent implements OnInit, OnDestroy {
     if (parts[1] === 'txt') {//WORKING
       console.log('TXT FILE DISPLAY');
       for (let i = 0; i < this.fileAndFilenames.length; i++) {//arun
+        console.log('this.fileAndFilenames[i].filename :: ' + this.fileAndFilenames[i].filename);
+        console.log(option.name);
         if (this.fileAndFilenames[i].filename === option.name) {
           console.log('YES FILENAME :' + this.fileAndFilenames[i].filename);
           console.log('YES FILE :' + this.fileAndFilenames[i].file);
@@ -449,7 +447,6 @@ export class UploaderComponent implements OnInit, OnDestroy {
     this.options = [];
     console.log(files.length);
     if (files.length === 0) {
-      //alert('Please select atleast one PDF File');
       this.warningToastMsg('Please select atleast one PDF File');
       return;
     }
@@ -471,7 +468,12 @@ export class UploaderComponent implements OnInit, OnDestroy {
     //------------------- COLLECT FILE AND FILE NAME IN ARRAY ---------------------
     this.fileAndFilenames = [];
     for (let i = 0; i < files.length; i++) {//arun
-      this.fileAndFilenames.push({ 'file': files.item(i), 'filename': files.item(i).name });
+      let fn = files.item(i).name;
+      console.log('----- fn ------' + fn);
+      let fnn = fn.replace(/ /g, "_");
+      console.log('----- fnn ------' + fnn);
+      ////this.fileAndFilenames.push({ 'file': files.item(i), 'filename': files.item(i).name });
+      this.fileAndFilenames.push({ 'file': files.item(i), 'filename': fnn });
     }
     //------------------- COLLECT FILE AND FILE NAME IN ARRAY ---------------------
     //------------------ DELETE OLD PDF FILES IN SERVER TAKING NAMES FROM LOCALSTORAGE ---------------------
@@ -490,9 +492,15 @@ export class UploaderComponent implements OnInit, OnDestroy {
         //REMOVE THE FILE WITH PDF IN UPLOADS SERVER FOLDER................
         let parts = filenamesArr[i].split('.');
         console.log('NAME ALONE : ' + parts[0]);
-        let filenameDelPDF = parts[0] + '.pdf';
+        let fn = parts[0];
+        console.log('----- fn ------' + fn);
+        let fnn = fn.replace(/ /g, "_");
+        console.log('----- fnn ------' + fnn);
+        ////let filenameDelPDF = parts[0] + '.pdf';
+        let filenameDelPDF = fnn + '.pdf';
         console.log('filenameDelPDF :: ' + filenameDelPDF);
         //----------------------
+        //rambo
         this.aiservice.aiServiceToDeleteFile(filenameDelPDF).subscribe((data) => {
           console.log(data);
         },
@@ -513,13 +521,25 @@ export class UploaderComponent implements OnInit, OnDestroy {
     this.uploadedFiles = [];
     for (let i = 0; i < files.length; i++) {
       //--------------------------------
-      this.uploadedFiles.push(files.item(i).name);
+      let fn = files.item(i).name;
+      console.log('----- fn ------' + fn);
+      let fnn = fn.replace(/ /g, "_");
+      console.log('----- fnn ------' + fnn);
+      ////this.uploadedFiles.push(files.item(i).name);//rocky
+      this.uploadedFiles.push(fnn);//rocky
       //--------------------------------
       this.files.push(files.item(i));
       console.log(files.item(i));
-      const filenameWithDateTm = `${Date.now()}_${files.item(i).name}`;
-      console.log(filenameWithDateTm);
-      this.options.push({ filenameDtTm: filenameWithDateTm, name: files.item(i).name, uploadedDtTm: this.getUploadedDtTmFromUnixTimestamp('1685952511'), value: i, checked: false });
+      /* let fn = files.item(i).name;
+      console.log('----- fn ------' + fn);
+      let fnn = fn.replace(/ /g, "_");
+      console.log('----- fnn ------' + fnn); */
+      //const filenameWithDateTm = `${Date.now()}_${files.item(i).name}`;
+      const filenameWithDateTm = `${Date.now()}_${fnn}`;
+      console.log('------ filenameWithDateTm --------> : ' + filenameWithDateTm);
+
+      ////this.options.push({ filenameDtTm: filenameWithDateTm, name: files.item(i).name, uploadedDtTm: this.getUploadedDtTmFromUnixTimestamp('1685952511'), value: i, checked: false });
+      this.options.push({ filenameDtTm: filenameWithDateTm, name: fnn, uploadedDtTm: this.getUploadedDtTmFromUnixTimestamp('1685952511'), value: i, checked: false });
 
       //---------------------
       let filename = files.item(i).name;
@@ -574,11 +594,10 @@ export class UploaderComponent implements OnInit, OnDestroy {
 
     return new Promise(async (res, rej) => {
       const formData = new FormData();
+      console.log('+++++++++ flie.name +++++++++++' + file.name);
       formData.append('file', file);
       formData.append('filenameDtTm', filenameDtTm);
       //~~~~~~~~~~~~~~~~~~~~ LOCAL LIVE ~~~~~~~~~~~~~~~~~~~~~~~~
-      //this.http.post('http://localhost:3000/convertDoc', formData)
-      ////this.http.post('https://chatpdfaibot.onrender.com/convertDoc', formData)
       this.http.post(this.liveOrLocalUrl + '/convertDoc', formData)
         //~~~~~~~~~~~~~~~~~~~~ LOCAL LIVE ~~~~~~~~~~~~~~~~~~~~~~~~
         .subscribe(
@@ -587,7 +606,12 @@ export class UploaderComponent implements OnInit, OnDestroy {
             console.log(data);
             //----------------------
             console.log('uploadAndConvertDocFileMultiple DELETING FILE NAME IN SERVER : ' + file.name);
-            this.aiservice.aiServiceToDeleteFile(file.name).subscribe((data) => {
+            let fn = file.name;
+            console.log('----- fn ------' + fn);
+            let fnn = fn.replace(/ /g, "_");
+            console.log('----- fnn ------' + fnn);
+            ////this.aiservice.aiServiceToDeleteFile(file.name).subscribe((data) => {
+            this.aiservice.aiServiceToDeleteFile(fnn).subscribe((data) => {
               console.log(data);
             },
               (error) => {
